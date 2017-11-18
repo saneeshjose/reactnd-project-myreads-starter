@@ -24,7 +24,7 @@ class Search extends Component {
             <div className="search-books-results">
               <ol className="books-grid">
                 { 
-                  this.state.books.map(b=>(<li key={b.id}><Book key={b.id} book={b} shelfChangeHandler={this.props.shelfChangeHandler}/></li>) )
+                  this.state.books.map(b=>(<li key={b.id}><Book key={b.id} book={b} shelfChangeHandler={this.props.shelfManager.moveToShelf}/></li>) )
                 }
               </ol>
             </div>
@@ -44,7 +44,7 @@ class Search extends Component {
 	      if( !response.error ) tmpSearchRes = response;
 
 	      tmpSearchRes.forEach((book) => {
-	        book.shelf = this.props.shelfSearchHandler(book);
+	        book.shelf = this.props.shelfManager.findShelf(book);
 	      })
 
 	      this.setState({books:tmpSearchRes});

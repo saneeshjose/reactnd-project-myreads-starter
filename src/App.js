@@ -1,15 +1,81 @@
 import React from 'react'
 import {Route,Link} from 'react-router-dom'
 
-import BookShelf from './BookShelf'
+import BookShelves from './BookShelves'
 import Search from './Search'
 
 import * as BooksAPI from './BooksAPI'
 import './App.css'
 
 class BooksApp extends React.Component {
+  
   state = {
-    books : []
+    shelves : [
+      {
+        id : "currentlyReading",
+        title : "Currently Reading",
+        books : []
+      },
+      {
+        id : "read",
+        title : "Read",
+        books : []
+      },
+      {
+        id : "wantToRead",
+        title : "Want to Read",
+        books : []
+      }
+    ],
+    bookIndex : []
+  }
+
+  ShelfManager = {
+
+    /** 
+     * Puts the books to their appropirate shelves.
+     * Books with no/unknown shelf attributes are ignored
+     */
+    fillBooks : ( books ) => {
+
+      this.setState ( (state) => {
+
+        //Create a temporary array copying from the state, since state should not be mutated directly
+        let tmpShelves = this.state.shelves.slice();
+
+        //Index of books by shelf id
+        let tmpIndex = [];
+
+        tmpShelves.forEach( (shelf) => {
+          shelf.books = [];
+        })
+
+        books.forEach( book => {
+          let sMatch = tmpShelves.find( (shelf) => book.shelf === shelf.id )
+          sMatch && sMatch.books.push(book);
+          tmpIndex[ book.id ] = sMatch.id;
+        })
+
+        return { 
+          shelves : tmpShelves,
+          bookIndex : tmpIndex
+        }
+
+      });
+    },
+
+    /* Returns shelf for a given book */
+    findShelf : ( book ) => (this.state.bookIndex[book.id] || "none" ),
+
+    /*
+     * Move book to a shelf, updates db, and retrieve the updated data from db and re-initialize state 
+     */
+    moveToShelf : ( book, shelf )=> {
+      BooksAPI.update( {id: book.id}, shelf ).then(()=>{
+        this.refresh();
+      });
+    }
+
   }
 
   componentDidMount = () => {
@@ -18,52 +84,22 @@ class BooksApp extends React.Component {
 
   /* fetch list of books from server and updates books array in the state */
   refresh = ()=> {
-    BooksAPI.getAll().then((response)=>{
-      this.setState({books:response});
-      console.log('Refresh complete');
+    BooksAPI.getAll().then((books)=>{
+      this.ShelfManager.fillBooks(books);
     });
   }
-
-  getBookShelf = ( book ) => {
-    var match = this.state.books.findIndex((b)=>b.id === book.id);
-
-    if ( match !== -1 ) return this.state.books[match].shelf;
-    else return "none";
-  }
-
-  /**
-   * Move book to a shelf, updates db, and retrieve the updated data from db and re-initialize state */
-  moveToShelf = ( book, shelf )=> {
-    console.log('Moving ' + book.title +' to ' + shelf);
-    BooksAPI.update( {id: book.id}, shelf ).then(()=>{
-      this.refresh();
-    });
-  }
+  
 
   render() {
     return (
       <div className="app">
       
         <Route exact path='/search' render={ ()=> (
-          <Search shelfChangeHandler={this.moveToShelf} shelfSearchHandler={this.getBookShelf} />
+          <Search shelfManager={this.ShelfManager} />
         )} />
 
         <Route exact path='/' render={ () => (
-          <div className="list-books">
-            <div className="list-books-title">
-              <h1>MyReads</h1>
-            </div>
-            <div className="list-books-content">
-              <div>
-                <BookShelf books={this.state.books.filter( book=> book.shelf === 'currentlyReading')} title='Currently Reading' shelfChangeHandler={this.moveToShelf}/>
-                <BookShelf books={this.state.books.filter( book=> book.shelf === 'read')} title='Read' shelfChangeHandler={this.moveToShelf} />
-                <BookShelf books={this.state.books.filter( book=> book.shelf === 'wantToRead')} title='Want to Read' shelfChangeHandler={this.moveToShelf} />
-              </div>
-            </div>
-            <div className="open-search">
-              <Link to="/search">Add a book</Link>
-            </div>
-          </div>
+          <BookShelves shelves={this.state.shelves} shelfManager={this.ShelfManager}/>
         )} />
 
       </div>

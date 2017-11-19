@@ -8,22 +8,22 @@ import * as BooksAPI from './BooksAPI'
 import './App.css'
 
 class BooksApp extends React.Component {
-  
+
   state = {
     shelves : [
       {
-        id : "currentlyReading",
-        title : "Currently Reading",
+        id : 'currentlyReading',
+        title : 'Currently Reading',
         books : []
       },
       {
-        id : "read",
-        title : "Read",
+        id : 'read',
+        title : 'Read',
         books : []
       },
       {
-        id : "wantToRead",
-        title : "Want to Read",
+        id : 'wantToRead',
+        title : 'Want to Read',
         books : []
       }
     ],
@@ -32,9 +32,10 @@ class BooksApp extends React.Component {
 
   ShelfManager = {
 
-    /** 
+    /**
      * Puts the books to their appropirate shelves.
      * Books with no/unknown shelf attributes are ignored
+     * Also creates an index to look up which shelf a given book belongs to
      */
     fillBooks : ( books ) => {
 
@@ -46,6 +47,7 @@ class BooksApp extends React.Component {
         //Index of books by shelf id
         let tmpIndex = [];
 
+        //Empty the books before filling the shelves
         tmpShelves.forEach( (shelf) => {
           shelf.books = [];
         })
@@ -56,7 +58,7 @@ class BooksApp extends React.Component {
           tmpIndex[ book.id ] = sMatch.id;
         })
 
-        return { 
+        return {
           shelves : tmpShelves,
           bookIndex : tmpIndex
         }
@@ -65,13 +67,15 @@ class BooksApp extends React.Component {
     },
 
     /* Returns shelf for a given book */
-    findShelf : ( book ) => (this.state.bookIndex[book.id] || "none" ),
+    findShelf : ( book ) => (this.state.bookIndex[book.id] || 'none' ),
 
     /*
-     * Move book to a shelf, updates db, and retrieve the updated data from db and re-initialize state 
+     * Move book to a shelf, updates db, and retrieve the updated data from db and re-initialize state
      */
     moveToShelf : ( book, shelf )=> {
       BooksAPI.update( {id: book.id}, shelf ).then(()=>{
+
+        //TODO : No need to refresh always
         this.refresh();
       });
     }
@@ -80,30 +84,35 @@ class BooksApp extends React.Component {
 
   componentDidMount = () => {
     this.refresh();
+
+    console.log('BooksApp : ComponentDidMount');
   }
 
   /* fetch list of books from server and updates books array in the state */
   refresh = ()=> {
     BooksAPI.getAll().then((books)=>{
       this.ShelfManager.fillBooks(books);
+      console.log(books);
     });
   }
-  
+
 
   render() {
+
+    console.log('Rendering Books App');
     return (
       <div className="app">
-      
-        <Route exact path='/search' render={ ()=> (
+
+        <Route exact path="/search" render={ ()=> (
           <Search shelfManager={this.ShelfManager} />
         )} />
 
-        <Route exact path='/' render={ () => (
+        <Route exact path="/" render={ () => (
           <BookShelves shelves={this.state.shelves} shelfManager={this.ShelfManager}/>
         )} />
 
       </div>
-    ) 
+    )
   }
 }
 

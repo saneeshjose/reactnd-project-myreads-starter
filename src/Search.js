@@ -23,8 +23,10 @@ class Search extends Component {
             </div>
             <div className="search-books-results">
               <ol className="books-grid">
-                { 
-                  this.state.books.map(b=>(<li key={b.id}><Book key={b.id} book={b} shelfChangeHandler={this.props.shelfManager.moveToShelf}/></li>) )
+                {
+                  this.state.books.map(b=><li key={b.id}>
+                  			<Book key={b.id} book={b} shelfChangeHandler={this.props.shelfManager.moveToShelf}/>
+                  		</li> )
                 }
               </ol>
             </div>

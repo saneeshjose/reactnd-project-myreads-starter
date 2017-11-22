@@ -1,9 +1,11 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
-
 class Book extends Component {
 
+	state = {
+		opacity : 1.0
+	}
 
 	/**
 	 * Renders Book component, and sets event handler for bookshelf change
@@ -17,10 +19,11 @@ class Book extends Component {
 
 					<div className="book">
 		                <div className="book-top">
-		                    <div className="book-cover" style={{ 
+		                    <div className="book-cover" style={{
 		                    	width: 128,
 		                    	height: 193,
-		                    	backgroundImage: `url(${imageLinks.smallThumbnail})` 
+		                    	backgroundImage: `url(${imageLinks.smallThumbnail})`,
+		                    	opacity : `${this.state.opacity}`
 		                    }}></div>
 		                    <div className="book-shelf-changer">
 		                      <select onChange={(event)=>{
@@ -42,7 +45,11 @@ class Book extends Component {
 
 	/*Callback to notify shelf change to parent component */
 	onShelfChange = (book, toShelf) => {
-		this.props.shelfChangeHandler(this.props.book, toShelf);
+		this.setState( {opacity : 0.4});
+		this.props.shelfChangeHandler(this.props.book, toShelf).then(()=>{
+			this.setState( {opacity : 1.0});
+			console.log('Completed updating book ' + this.props.book.title);
+		});
 	}
 }
 

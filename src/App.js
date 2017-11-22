@@ -1,5 +1,5 @@
 import React from 'react'
-import {Route,Link} from 'react-router-dom'
+import {Route} from 'react-router-dom'
 
 import BookShelves from './BookShelves'
 import Search from './Search'
@@ -42,7 +42,7 @@ class BooksApp extends React.Component {
       this.setState ( (state) => {
 
         //Create a temporary array copying from the state, since state should not be mutated directly
-        let tmpShelves = this.state.shelves.slice();
+        let tmpShelves = [...this.state.shelves];
 
         //Index of books by shelf id
         let tmpIndex = [];
@@ -70,36 +70,36 @@ class BooksApp extends React.Component {
     findShelf : ( book ) => (this.state.bookIndex[book.id] || 'none' ),
 
     /*
-     * Move book to a shelf, updates db, and retrieve the updated data from db and re-initialize state
+     * Move book to a shelf, updates db, and returns a promise
      */
     moveToShelf : ( book, shelf )=> {
-      BooksAPI.update( {id: book.id}, shelf ).then(()=>{
+      return new Promise( (resolve, reject) => {
 
-        //TODO : No need to refresh always
-        this.refresh();
-      });
+        BooksAPI.update( {id: book.id}, shelf ).then((response)=>{
+          resolve();
+        })
+        .catch((error)=> {
+          reject(error);
+        });
+
+      } );
     }
-
   }
 
   componentDidMount = () => {
     this.refresh();
-
-    console.log('BooksApp : ComponentDidMount');
   }
 
   /* fetch list of books from server and updates books array in the state */
   refresh = ()=> {
     BooksAPI.getAll().then((books)=>{
       this.ShelfManager.fillBooks(books);
-      console.log(books);
     });
   }
 
 
   render() {
 
-    console.log('Rendering Books App');
     return (
       <div className="app">
 

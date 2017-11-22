@@ -3,12 +3,12 @@ import {Link} from 'react-router-dom'
 
 import Book from './Book'
 
-import * as BooksAPI from './BooksAPI'
 import './App.css'
 
 class BookShelves extends React.Component {
-  
+
   render() {
+
     return (
 
       <div className="list-books">
@@ -32,7 +32,7 @@ class BookShelves extends React.Component {
               <Link to="/search">Add a book</Link>
             </div>
           </div>
-    ) 
+    )
   }
 }
 

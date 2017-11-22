@@ -12,8 +12,8 @@ class Search extends Component {
 		books : []
 	}
 
-	render = ()=> (
-
+	render = ()=> {
+		return (
 		<div className="search-books">
             <div className="search-books-bar">
               <Link to='/' className="close-search">Close</Link>
@@ -31,7 +31,7 @@ class Search extends Component {
               </ol>
             </div>
           </div>
-	)
+	) }
 
 	search = (event) => {
 
@@ -46,7 +46,13 @@ class Search extends Component {
 	      if( !response.error ) tmpSearchRes = response;
 
 	      tmpSearchRes.forEach((book) => {
-	        book.shelf = this.props.shelfManager.findShelf(book);
+
+	      	let m = this.props.shelfManager.findBook(book.id)
+
+	        if ( m )
+	        	book.shelf = m.shelf
+	        else
+	        	book.shelf = 'none';
 	      })
 
 	      this.setState({books:tmpSearchRes});

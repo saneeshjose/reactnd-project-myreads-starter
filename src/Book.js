@@ -3,10 +3,6 @@ import PropTypes from 'prop-types';
 
 class Book extends Component {
 
-	state = {
-		opacity : 1.0
-	}
-
 	/**
 	 * Renders Book component, and sets event handler for bookshelf change
 	 **/
@@ -22,9 +18,8 @@ class Book extends Component {
 		                    <div className="book-cover" style={{
 		                    	width: 128,
 		                    	height: 193,
-		                    	backgroundImage: `url(${imageLinks.smallThumbnail})`,
-		                    	opacity : `${this.state.opacity}`
-		                    }}></div>
+		                    	backgroundImage: `url(${imageLinks.smallThumbnail})`
+		                    }} ref={ (bookcover) => this.bookcover = bookcover }></div>
 		                    <div className="book-shelf-changer">
 		                      <select onChange={(event)=>{
 		                      	this.onShelfChange(this.props.book, event.target.value);
@@ -45,11 +40,8 @@ class Book extends Component {
 
 	/*Callback to notify shelf change to parent component */
 	onShelfChange = (book, toShelf) => {
-		this.setState( {opacity : 0.4});
-		this.props.shelfChangeHandler(this.props.book, toShelf).then(()=>{
-			this.setState( {opacity : 1.0});
-			console.log('Completed updating book ' + this.props.book.title);
-		});
+		this.bookcover.style['opacity'] = 0.4;
+		this.props.shelfChangeHandler(this.props.book, toShelf);
 	}
 }
 

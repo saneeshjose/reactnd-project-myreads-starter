@@ -4,6 +4,8 @@ import {Route} from 'react-router-dom'
 import BookShelves from './BookShelves'
 import Search from './Search'
 
+import {addBookAction, moveToShelfAction} from './actions/actions'
+
 import * as BooksAPI from './BooksAPI'
 import './App.css'
 
@@ -34,33 +36,29 @@ class BooksApp extends React.Component {
     findBook : ( id ) =>  this.state.books.find( (book) => book.id === id),
 
     /*
-     * Move book to a shelf, updates db, and returns a promise
+     * Calls the service to update the db, on success, update the redux state
      */
     moveToShelf : ( book, shelf )=> {
-
        BooksAPI.update( {id: book.id}, shelf ).then((response)=>{
           //Update the books array
           this.setState( (state) => {
-            book.shelf = shelf;
-            return { books : state.books.filter( (b) => b.id !== book.id ).concat([book]) };
+            this.props.store.dispatch( moveToShelfAction(book,shelf));
           });
         })
     }
   }
 
   componentDidMount = () => {
-    this.refresh();
-  }
 
+    this.setState ( {books : this.props.store.getState() } );
 
-  /* fetch list of books from server and updates books array in the state */
-  refresh = ()=> {
-    BooksAPI.getAll().then((books)=>{
-      this.setState ( {books});
+    this.props.store.subscribe(()=>{
+      this.setState ( {books : this.props.store.getState()} );
     });
   }
 
   render() {
+
     return (
       <div className="app">
 

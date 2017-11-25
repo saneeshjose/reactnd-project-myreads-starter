@@ -1,12 +1,17 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
+import {connect} from 'react-redux'
+
+import {moveToShelfAction} from './actions/actions'
+
+import * as BooksAPI from './BooksAPI'
+
 class Book extends Component {
 
 	/**
 	 * Renders Book component, and sets event handler for bookshelf change
 	 **/
-
 	render() {
 
 			const {title,authors,shelf,imageLinks} = this.props.book;
@@ -41,13 +46,15 @@ class Book extends Component {
 	/*Callback to notify shelf change to parent component */
 	onShelfChange = (book, toShelf) => {
 		this.bookcover.style['opacity'] = 0.4;
-		this.props.shelfChangeHandler(this.props.book, toShelf);
+
+		BooksAPI.update( {id: book.id}, toShelf ).then((response)=>{
+          this.props.dispatch( moveToShelfAction(book,toShelf));
+        })
 	}
 }
 
 Book.propTypes = {
-	book : PropTypes.object.isRequired,
-	shelfChangeHandler : PropTypes.func.isRequired
+	book : PropTypes.object.isRequired
 }
 
-export default Book;
+export default connect()(Book);

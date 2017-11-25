@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
-import PropTypes from 'prop-types';
+import {connect} from 'react-redux';
 
 import Book from './Book'
 
@@ -24,9 +24,7 @@ class Search extends Component {
             <div className="search-books-results">
               <ol className="books-grid">
                 {
-                  this.state.books.map(b=><li key={b.id}>
-                  			<Book key={b.id} book={b} shelfChangeHandler={this.props.shelfManager.moveToShelf}/>
-                  		</li> )
+                  this.state.books.map(b=><li key={b.id}><Book key={b.id} book={b} /></li>)
                 }
               </ol>
             </div>
@@ -47,7 +45,7 @@ class Search extends Component {
 
 	      tmpSearchRes.forEach((book) => {
 
-	      	let m = this.props.shelfManager.findBook(book.id)
+	      	let m = this.findBook(book.id)
 
 	        if ( m )
 	        	book.shelf = m.shelf
@@ -58,11 +56,18 @@ class Search extends Component {
 	      this.setState({books:tmpSearchRes});
 	    });
   }
+
+  findBook =  (bookid) => this.props.mybooks.filter ( (b) => b.id === bookid );
+
 }
 
-Search.propType = {
-	shelfChangeHandler : PropTypes.func.isRequired,
-	shelfSearchHandler : PropTypes.func.isRequired
+function mapStateToProps(state, ownprops) {
+
+	console.log( state );
+
+	return {
+		mybooks : state
+	}
 }
 
-export default Search;
+export default connect(mapStateToProps)(Search);

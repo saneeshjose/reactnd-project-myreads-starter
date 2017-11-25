@@ -7,6 +7,8 @@ import * as BooksAPI from './BooksAPI'
 import {createStore} from 'redux'
 import {booksReducer} from './reducers/reducers'
 
+import {Provider} from 'react-redux'
+
 import App from './App'
 import './index.css'
 
@@ -14,5 +16,9 @@ import './index.css'
 BooksAPI.getAll().then((books)=>{
 
 	const store = createStore(booksReducer, books );
-    ReactDOM.render(<BrowserRouter><App store={store}/></BrowserRouter>, document.getElementById('root'));
+    ReactDOM.render(
+    	<Provider store={store}>
+    		<BrowserRouter><App/></BrowserRouter>
+    	</Provider>
+    	, document.getElementById('root'));
 });
